@@ -25,16 +25,16 @@
         const fetchCocktailData = () => {
             fetch('https://www.thecocktaildb.com/api/json/v1/1/random.php')
             .then((response => response.json()))
-            .then((data) => appendDrinkData(data, false))
+            .then((data) => appendDrinkData(data, true))
         }
 
-        const fetchNasaData = () => {
-            fetch('https://api.nasa.gov/planetary/apod?api_key=5tmiQutkRx4i2nqfyl8R80hhGEmMtQwO2fN30gPi')
+        const fetchNasaData = (requestDate) => {
+            fetch('https://api.nasa.gov/planetary/apod?api_key=5tmiQutkRx4i2nqfyl8R80hhGEmMtQwO2fN30gPi&date=' + requestDate)
             .then((response => response.json()))
             .then((data) => appendNasaData(data))
         }
 
-        const appendDrinkData = (data, logData = true) => {
+        const appendDrinkData = (data, logData) => {
             if(logData) console.log(data)
             let drinkData = data.drinks[0]
             if(logData) console.log(drinkData)
@@ -47,15 +47,39 @@
                 <img src="${drinkImage}" alt="Image of ${drinkName}" />
                 <p>${drinkInstructions}</p>
             `
+
             mainContent.innerHTML = drinkHTML
-            console.log(new Date(drinkData.dataModified))
-            fetchNasaData()
+
+            const drinkDate = new Date(drinkData.dateModified)
+            const year = drinkDate.getFullYear()
+            const month = drinkDate.getMonth() + 1 // Months are zero-indexed
+            const day = drinkDate.getDate()
+
+            const nasaDate = year + '-' + (month < 10 ? '0' + month : month) + '-' + (day < 10 ? '0' + day : day)
+            // const nasaDateString = `${year}-${month}-${day}`
+            console.log(nasaDate)
+
+            fetchNasaData(nasaDate)
 
 
         }
 
         const appendNasaData = (data) => {
             console.log(data)
+            let nasaDate = data.date
+            let nasaTitle = data.title
+            let nasaAuthor = data.copyright ? data.copyright : 'Public Domain'
+            let nasaImage = data.hdurl
+            let nasaExplanation = data.explanation
+
+            let nasaHTML = `
+                <h2>${nasaTitle}</h2>
+                <img src="${nasaImage}" alt="Image of ${nasaTitle}" />
+                <h4>${nasaDate} - ${nasaAuthor}</h4>
+                <p>${nasaExplanation}</p>
+            `
+
+            mainContent.innerHTML += nasaHTML
         }
 
 
