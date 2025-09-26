@@ -19,27 +19,47 @@
 
     <script>
         const triggerButton = document.getElementById('fetch-button')
+
         const mainContent = document.getElementById('main-content')
         
-        triggerButton.addEventListener('click', () => {
+        const fetchCocktailData = () => {
             fetch('https://www.thecocktaildb.com/api/json/v1/1/random.php')
             .then((response => response.json()))
-            .then((data) => {
-                let drinkData = data.drinks[0]
-                console.log(drinkData)
-                let drinkName = drinkData.strDrink
-                let drinkImage = drinkData.strDrinkThumb
-                let drinkInstructions = drinkData.strInstructions
+            .then((data) => appendDrinkData(data, false))
+        }
 
-                let drinkHTML = `
-                    <h2>${drinkName}</h2>
-                    <img src="${drinkImage}" alt="Image of ${drinkName}" />
-                    <p>${drinkInstructions}</p>
-                `
-                mainContent.innerHTML = drinkHTML
+        const fetchNasaData = () => {
+            fetch('https://api.nasa.gov/planetary/apod?api_key=5tmiQutkRx4i2nqfyl8R80hhGEmMtQwO2fN30gPi')
+            .then((response => response.json()))
+            .then((data) => appendNasaData(data))
+        }
 
-            })
-        })
+        const appendDrinkData = (data, logData = true) => {
+            if(logData) console.log(data)
+            let drinkData = data.drinks[0]
+            if(logData) console.log(drinkData)
+            let drinkName = drinkData.strDrink
+            let drinkImage = drinkData.strDrinkThumb
+            let drinkInstructions = drinkData.strInstructions
+
+            let drinkHTML = `
+                <h2>${drinkName}</h2>
+                <img src="${drinkImage}" alt="Image of ${drinkName}" />
+                <p>${drinkInstructions}</p>
+            `
+            mainContent.innerHTML = drinkHTML
+            console.log(new Date(drinkData.dataModified))
+            fetchNasaData()
+
+
+        }
+
+        const appendNasaData = (data) => {
+            console.log(data)
+        }
+
+
+        triggerButton.addEventListener('click', fetchCocktailData)
     </script>
 
 
