@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
+
 <head>
+    <link rel="stylesheet" href="style.css">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fetch Example</title>
 </head>
-<body>
-    <header>
-            <h1>Fetch Example</h1>
-            <h3>Start Here</h3>
-            <button id="fetch-button">Fetch Data</button>
 
+
+<body>  
+
+    <nav class="topbar">
+        <img src="images/PokeApi.png" alt="PokéAPI logo">
+    </nav>
+
+    <header>
+        <h1>Pull a Random Pokémon!</h1>
+        <p class="subtitle">Get one from PokéAPI — fresh every click.</p>
+        <button id="fetch-button" aria-label="Fetch a random Pokémon">Click here</button>
     </header>
 
     <main id="main-content">
@@ -24,10 +34,10 @@ const mainContent   = document.getElementById('main-content');
 triggerButton.addEventListener('click', () => {
   mainContent.textContent = 'Loading...';
 
-  // 设定随机宝可梦ID
+// 设定随机宝可梦ID
   const randomId = Math.floor(Math.random() * 898) + 1;
 
-  //用随机ID请求PokeAPI
+// 用随机ID请求PokeAPI
   fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}`)
     .then(res => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
