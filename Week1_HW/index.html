@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Example</title>
+</head>
+<body>
+    <header>
+            <h1>Fetch Example</h1>
+            <h3>Start Here</h3>
+            <button id="fetch-button">Fetch Data</button>
+
+    </header>
+
+    <main id="main-content">
+
+    </main>
+
+<script>
+const triggerButton = document.getElementById('fetch-button');
+const mainContent   = document.getElementById('main-content');
+
+triggerButton.addEventListener('click', () => {
+  mainContent.textContent = 'Loading...';
+
+  // 设定随机宝可梦ID
+  const randomId = Math.floor(Math.random() * 898) + 1;
+
+  //用随机ID请求PokeAPI
+  fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}`)
+    .then(res => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
+    .then(pokemon => {
+        console.log(pokemon);
+      const name   = pokemon.name;
+      const img    = pokemon.sprites?.other?.['official-artwork']?.front_default
+                  || pokemon.sprites?.front_default;
+      const types  = pokemon.types.map(t => t.type.name).join(', ');
+      const height = pokemon.height; 
+      const weight = pokemon.weight; 
+
+      const baseHtml = `
+        <h2>${name}</h2>
+        ${img ? `<img src="${img}" alt="${name}" />` : ''}
+        <p><strong>Types:</strong> ${types}</p>
+        <p><strong>Height:</strong> ${height} dm</p>
+        <p><strong>Weight:</strong> ${weight} hg</p>
+      `;
+      mainContent.innerHTML = baseHtml;
+
+      // 能力
+      const abilityName = pokemon.abilities?.[0]?.ability?.name;
+      if (!abilityName) return;
+
+      const abilityBox = document.createElement('section');
+      abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>Loading ability…</p>`;
+      mainContent.appendChild(abilityBox);
+
+      return fetch(`https://pokeapi.co/api/v2/ability/${abilityName}`)
+        .then(r => r.json())
+        .then(ability => {
+            console.log(ability);
+          const entry = ability.effect_entries?.find(e => e.language?.name === 'en');
+          const effect = entry?.short_effect || entry?.effect || 'No effect text.';
+          abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>${effect}</p>`;
+        })
+        .catch(err => {
+          abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>加载失败：${err.message}</p>`;
+        });
+    })
+    .catch(err => {
+      mainContent.textContent = '加载失败：' + err.message;
+    });
+});
+</script>
+
+
+
+
+
+</body>
+</html>
+
+
+    <!-- //单次 Poke API 请求// -->
+    <!-- <script>
+        const triggerButton = document.getElementById('fetch-button');
+        const mainContent   = document.getElementById('main-content');
+
+        triggerButton.addEventListener('click', () => {
+        mainContent.textContent = 'Loading...';
+
+    fetch('https://pokeapi.co/api/v2/pokemon/ditto')
+        .then(res => res.json())
+        .then(pokemon => {
+        console.log(pokemon); 
+
+        const name   = pokemon.name; 
+        const img    = pokemon.sprites?.other?.['official-artwork']?.front_default
+                        || pokemon.sprites?.front_default;
+        const types  = pokemon.types.map(t => t.type.name).join(', ');
+        const height = pokemon.height; 
+        const weight = pokemon.weight; 
+
+        const html = `
+            <h2>${name}</h2>
+            ${img ? `<img src="${img}" alt="${name}" />` : ''}
+            <p><strong>Types:</strong> ${types}</p>
+            <p><strong>Height:</strong> ${height} dm</p>
+            <p><strong>Weight:</strong> ${weight} hg</p>
+        `;
+        mainContent.innerHTML = html;
+        })
+        .catch(err => {
+        mainContent.textContent = '加载失败：' + err.message;
+        });
+    });
+    </script> -->
+
+     <!-- //单次 Cocktail 请求// -->
+    <!-- <script>
+        const triggerButton = document.getElementById('fetch-button')
+        const mainContent = document.getElementById('main-content')
+        
+        triggerButton.addEventListener('click', () => {
+            fetch('https://www.thecocktaildb.com/api/json/v1/1/random.php')
+            .then((response => response.json()))
+            .then((data) => {
+                let drinkData = data.drinks[0]
+                console.log(drinkData)
+                let drinkName = drinkData.strDrink
+                let drinkImage = drinkData.strDrinkThumb
+                let drinkInstructions = drinkData.strInstructions
+
+                let drinkHTML = `
+                    <h2>${drinkName}</h2>
+                    <img src="${drinkImage}" alt="Image of ${drinkName}" />
+                    <p>${drinkInstructions}</p>
+                `
+                mainContent.innerHTML = drinkHTML
+
+            })
+        })
+    </script> -->
