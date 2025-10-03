@@ -1,96 +1,154 @@
 <!DOCTYPE html>
 <html lang="en">
-
-
 <head>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Random Pokemon</title>
+  <link rel="stylesheet" href="style.css">
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fetch Example</title>
 </head>
 
+<body>
+  <nav class="topbar">
+    <img src="images/PokeApi.png" alt="PokéAPI logo">
+  </nav>
 
-<body>  
+  <header>
+    <h1>Pull a Random Pokémon!</h1>
+    <p class="subtitle">Get one from PokéAPI — fresh every click.</p>
+    <button id="fetch-button" aria-label="Fetch a random Pokémon">Click here</button>
+  </header>
 
-    <nav class="topbar">
-        <img src="images/PokeApi.png" alt="PokéAPI logo">
-    </nav>
+  <main id="main-content" aria-live="polite"></main>
 
-    <header>
-        <h1>Pull a Random Pokémon!</h1>
-        <p class="subtitle">Get one from PokéAPI — fresh every click.</p>
-        <button id="fetch-button" aria-label="Fetch a random Pokémon">Click here</button>
-    </header>
+  <script>
+    const triggerButton = document.getElementById('fetch-button');
+    const mainContent   = document.getElementById('main-content');
 
-    <main id="main-content">
+    // 类型→主题色；类型→图标（可选）
+    const TYPE_THEME = {
+      normal:'#A8A77A', fire:'#EE8130', water:'#6390F0', electric:'#F7D02C',
+      grass:'#7AC74C',  ice:'#96D9D6', fighting:'#C22E28', poison:'#A33EA1',
+      ground:'#E2BF65', flying:'#A98FF3', psychic:'#F95587', bug:'#A6B91A',
+      rock:'#B6A136',   ghost:'#735797', dragon:'#6F35FC', dark:'#705746',
+      steel:'#B7B7CE',  fairy:'#D685AD'
+    };
+    const TYPE_ICON = t => `images/types/${t}.svg`; // 可选小图标路径
 
-    </main>
+    triggerButton.addEventListener('click', () => {
+      triggerButton.disabled = true;
+      mainContent.textContent = 'Loading...';
 
-<script>
-const triggerButton = document.getElementById('fetch-button');
-const mainContent   = document.getElementById('main-content');
+    // 随机宝可梦 ID（1~898 较稳妥）
+    const randomId = Math.floor(Math.random() * 898) + 1;
 
-triggerButton.addEventListener('click', () => {
-  mainContent.textContent = 'Loading...';
-
-// 设定随机宝可梦ID
-  const randomId = Math.floor(Math.random() * 898) + 1;
-
-// 用随机ID请求PokeAPI
-  fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}`)
-    .then(res => {
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return res.json();
-    })
-    .then(pokemon => {
+    // —— A：用随机 ID 请求 Pokemon ——
+    fetch(`https://pokeapi.co/api/v2/pokemon/${randomId}`)
+      .then(res => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+      .then(pokemon => {
         console.log(pokemon);
-      const name   = pokemon.name;
-      const img    = pokemon.sprites?.other?.['official-artwork']?.front_default
-                  || pokemon.sprites?.front_default;
-      const types  = pokemon.types.map(t => t.type.name).join(', ');
-      const height = pokemon.height; 
-      const weight = pokemon.weight; 
 
-      const baseHtml = `
-        <h2>${name}</h2>
-        ${img ? `<img src="${img}" alt="${name}" />` : ''}
-        <p><strong>Types:</strong> ${types}</p>
-        <p><strong>Height:</strong> ${height} dm</p>
-        <p><strong>Weight:</strong> ${weight} hg</p>
-      `;
-      mainContent.innerHTML = baseHtml;
+        const name   = pokemon.name;
+        const img    = pokemon.sprites?.other?.['official-artwork']?.front_default
+                      || pokemon.sprites?.front_default;
+        const types  = pokemon.types.map(t => t.type.name).join(', ');
+        const height = pokemon.height; // dm
+        const weight = pokemon.weight; // hg
 
-      // 能力
-      const abilityName = pokemon.abilities?.[0]?.ability?.name;
-      if (!abilityName) return;
+        const baseHtml = `
+          <h2 style="text-transform:capitalize">${name}</h2>
+          ${img ? `<img src="${img}" alt="${name}" />` : ''}
+          <p><strong>Types:</strong> ${types}</p>
+          <p><strong>Height:</strong> ${height} dm</p>
+          <p><strong>Weight:</strong> ${weight} hg</p>
+          `;
+          mainContent.innerHTML = baseHtml;
 
-      const abilityBox = document.createElement('section');
-      abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>Loading ability…</p>`;
-      mainContent.appendChild(abilityBox);
+    // —— B：Ability ——
+        const abilityName = pokemon.abilities?.[0]?.ability?.name;
+          if (abilityName) {
+            const abilityBox = document.createElement('section');
+            abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>Loading ability…</p>`;
+            mainContent.appendChild(abilityBox);
 
-      return fetch(`https://pokeapi.co/api/v2/ability/${abilityName}`)
-        .then(r => r.json())
-        .then(ability => {
-            console.log(ability);
-          const entry = ability.effect_entries?.find(e => e.language?.name === 'en');
-          const effect = entry?.short_effect || entry?.effect || 'No effect text.';
-          abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>${effect}</p>`;
+            fetch(`https://pokeapi.co/api/v2/ability/${abilityName}`)
+              .then(r => r.json())
+              .then(ability => {
+                console.log(ability);
+                const entry = ability.effect_entries?.find(e => e.language?.name === 'en');
+                const effect = entry?.short_effect || entry?.effect || 'No effect text.';
+                abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>${effect}</p>`;
+              })
+              .catch(err => {
+                abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>加载失败：${err.message}</p>`;
+              });
+          }
+
+    // —— C：Move 卡片（新增加的“下一跳”） ——
+        const moveList = pokemon.moves;
+          if (Array.isArray(moveList) && moveList.length) {
+
+            const randMove = moveList[Math.floor(Math.random() * moveList.length)];
+            const moveName = randMove?.move?.name;
+
+          if (moveName) {
+            const moveBox = document.createElement('section');
+              moveBox.innerHTML = `<h3>Move: ${moveName}</h3><p>Loading move…</p>`;
+              mainContent.appendChild(moveBox);
+
+            fetch(`https://pokeapi.co/api/v2/move/${moveName}`)
+              .then(r => r.json())
+              .then(move => {
+                  console.log(move);
+                  const mName  = move.name;
+                  const mType  = move.type?.name || 'normal';
+                  const mClass = move.damage_class?.name || 'status'; // physical/special/status
+                  const power  = move.power ?? '—';
+                  const acc    = move.accuracy ?? '—';
+                  const pp     = move.pp ?? '—';
+                  const effect = (move.effect_entries?.find(e => e.language?.name==='en')?.short_effect)
+                              || (move.flavor_text_entries?.find(e => e.language?.name==='en')?.flavor_text)
+                              || 'No effect text.';
+
+                  const color    = TYPE_THEME[mType] || '#888';
+                  const iconPath = TYPE_ICON(mType);
+
+                  moveBox.innerHTML = `
+                    <div class="move-card" style="--type-color:${color}">
+                      <div class="move-head">
+                        <div class="type-badge">
+                          <img src="${iconPath}" alt="${mType} icon" onerror="this.style.display='none'">
+                          <span class="type-name">${mType}</span>
+                        </div>
+                        <span class="class-badge ${mClass}">${mClass}</span>
+                      </div>
+                      <h3 class="move-title">${mName}</h3>
+                      <ul class="move-stats">
+                        <li><strong>Power</strong> ${power}</li>
+                        <li><strong>Accuracy</strong> ${acc}</li>
+                        <li><strong>PP</strong> ${pp}</li>
+                      </ul>
+                      <p class="move-effect">${effect}</p>
+                    </div>
+                  `;
+                })
+                .catch(err => {
+                  moveBox.innerHTML = `<h3>Move: ${moveName}</h3><p>加载失败：${err.message}</p>`;
+                });
+            }
+          }
         })
         .catch(err => {
-          abilityBox.innerHTML = `<h3>Ability: ${abilityName}</h3><p>加载失败：${err.message}</p>`;
+          mainContent.textContent = '加载失败：' + err.message;
+        })
+        .finally(() => {
+          triggerButton.disabled = false;
         });
-    })
-    .catch(err => {
-      mainContent.textContent = '加载失败：' + err.message;
     });
-});
-</script>
-
-
-
-
-
+  </script>
 </body>
 </html>
 
