@@ -40,9 +40,8 @@
 body {
   margin: 0;
   padding: 0;
-  color: rgb(66, 34, 10);
-  font-size: 18px;
-  font-family: 'Helvetica Neue', sans-serif;
+  color: rgb(255, 99, 71);
+  font-size: 20px;
 }
 
 header {
@@ -84,13 +83,6 @@ header .content {
   text-decoration: underline;
 }
 
-main .content {
-  width: 1366px;
-  margin: 0 auto;
-  padding-top: 80px;
-}
-
-
 
 
 html, body {
@@ -105,6 +97,8 @@ main .content {
   margin: 0 auto;
   padding-top: 80px;
 }
+
+
 
 /* ---------- Intro & 目录 ---------- */
 .intro-section {
@@ -170,6 +164,7 @@ main .content {
 .works-detail {
   flex: 1;
   min-width: 300px;
+  color: rgb(64, 32, 8);
 }
 
 .works-item-title {
@@ -283,7 +278,7 @@ main .content {
 
 /* ---------- Code Block ---------- */
 pre {
-  background-color: #272822;
+  background-color: #27282267;
   color: #f8f8f2;
   padding: 16px;
   border-radius: 6px;
