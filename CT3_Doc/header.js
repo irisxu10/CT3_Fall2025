@@ -1,6 +1,6 @@
 function getPathPrefix() {
   const path = window.location.pathname;
-  if (path.includes('/CT3_Docs/')) {
+  if (path.includes('/CT3_Doc/')) {
     return ''; 
   } else {
     return '../'; 
